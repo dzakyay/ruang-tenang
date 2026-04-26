@@ -12,8 +12,17 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                serif: ['"Playfair Display"', ...defaultTheme.fontFamily.serif],
             },
+            colors: {
+                primary: {
+                    DEFAULT: '#a07954', // The brown color from mockup
+                    light: '#d2b48c',
+                    dark: '#6e4b2d',
+                },
+                background: '#fdfbf7', // Light beige background
+            }
         },
     },
 
