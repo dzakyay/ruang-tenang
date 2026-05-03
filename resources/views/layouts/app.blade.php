@@ -76,20 +76,10 @@
 
                         <!-- Jurnal Submenu -->
                         <div x-show="open" x-transition class="mt-1 space-y-1 pl-12 pr-4">
-                            <a href="{{ route('journal.show') }}"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('journal.*') ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 1
-                            </a>
-                            <a href="#"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 2
-                            </a>
-                            <a href="#"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 3
+                            @php $firstJournal = Auth::user()->journals()->first(); @endphp
+
+                            <a href="{{ $firstJournal ? route('journal.show', $firstJournal) : route('journal.create') }}">
+                                {{ $firstJournal ? $firstJournal->title : 'Buat Jurnal Baru' }}
                             </a>
                         </div>
                     </div>

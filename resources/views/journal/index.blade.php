@@ -1,7 +1,7 @@
 <x-app-layout>
     <!-- State Management with Alpine -->
     <div x-data="{ hasJournals: false, showAddModal: false }" class="px-10 py-12 max-w-7xl mx-auto min-h-full flex flex-col relative">
-        
+
         <!-- ================= EMPTY STATE ================= -->
         <div x-show="!hasJournals" class="flex-1 flex flex-col items-center justify-center h-full pt-32">
             <!-- Book Icon -->
@@ -12,7 +12,7 @@
             <button @click="showAddModal = true" class="px-6 py-2.5 bg-[#614d3c] text-white rounded-xl font-medium shadow-sm hover:bg-[#4a3b2d] transition">
                 Tambah Jurnal Pertama
             </button>
-            
+
             <!-- Development toggle for demonstration -->
             <button @click="hasJournals = true" class="mt-12 text-xs text-gray-300 hover:text-gray-500 underline">Lihat versi dengan data (Populated State)</button>
         </div>
@@ -55,7 +55,9 @@
                 <!-- Horizontal Scrollable Cards -->
                 <div class="flex overflow-x-auto pb-6 -mx-4 px-4 gap-6 snap-x hide-scrollbar">
                     <!-- Card 1 -->
-                    <a href="{{ route('journal.show') }}" class="min-w-[240px] h-64 bg-[#f9f7f4] rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50">
+                    @foreach ($journals as $journal)
+                    <a href="{{ route('journal.show', $journal) }}" class="min-w-[240px] h-64 bg-[#f9f7f4] rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50">
+                    @endforeach
                         <!-- Left Accent Color -->
                         <div class="absolute left-0 top-0 bottom-0 w-6 bg-[#86654b]"></div>
                         <div class="h-20 bg-[#e3dcd1]/50 ml-6"></div>
@@ -63,7 +65,7 @@
                             <h3 class="text-2xl font-bold text-[#1c1917] group-hover:text-[#86654b] transition">Jurnal 1</h3>
                         </div>
                     </a>
-                    
+
                     <!-- Card 2 -->
                     <a href="#" class="min-w-[240px] h-64 bg-[#f9f7f4] rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50">
                         <div class="absolute left-0 top-0 bottom-0 w-6 bg-[#86654b]"></div>
@@ -172,7 +174,7 @@
                     <div class="bg-[#e3dcd1] rounded-[2rem] p-8 text-center flex-1 flex flex-col justify-center shadow-inner relative overflow-hidden">
                         <!-- Background texture line -->
                         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#614d3c_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                        
+
                         <div class="relative z-10">
                             <h3 class="text-lg font-bold text-[#1c1917] mb-2 tracking-wide uppercase">Total</h3>
                             <div class="text-8xl font-bold font-serif text-[#614d3c] my-4 leading-none">4</div>
@@ -192,7 +194,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <button @click="hasJournals = false" class="mt-12 text-xs text-gray-300 hover:text-gray-500 underline w-full text-center">Lihat versi kosong (Empty State)</button>
         </div>
 
@@ -200,7 +202,7 @@
         <!-- ================= ADD JOURNAL MODAL ================= -->
         <div x-show="showAddModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <!-- Overlay -->
-            <div x-show="showAddModal" 
+            <div x-show="showAddModal"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -210,7 +212,7 @@
                  class="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
 
             <!-- Modal Content -->
-            <div x-show="showAddModal" 
+            <div x-show="showAddModal"
                  @click.away="showAddModal = false"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -219,7 +221,7 @@
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl z-10 border border-gray-100">
-                
+
                 <h2 class="text-3xl font-serif text-[#1c1917] text-center mb-8 font-bold">Tambah Jurnal Baru</h2>
 
                 <!-- Image Upload Placeholder -->
@@ -234,7 +236,7 @@
                     <div class="mb-4">
                         <input type="text" class="w-full bg-[#f9f7f4] border-0 rounded-2xl px-5 py-4 text-sm font-medium placeholder-gray-400 focus:ring-2 focus:ring-[#86654b] outline-none" placeholder="Nama Jurnal">
                     </div>
-                    
+
                     <div class="mb-8">
                         <textarea class="w-full bg-[#f9f7f4] border-0 rounded-2xl px-5 py-4 text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#86654b] outline-none resize-none" rows="3" placeholder="Deskripsi Jurnal"></textarea>
                     </div>
