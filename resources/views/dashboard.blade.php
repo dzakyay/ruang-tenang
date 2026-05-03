@@ -14,7 +14,7 @@
                     <h2 class="text-xl font-bold text-[#7a5c43]">Tren Suasana Hati</h2>
                     <button class="text-sm text-gray-500 flex items-center gap-1 hover:text-[#7a5c43]">
                         7 Hari Terakhir
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <x-icons.chevron-down class="w-4 h-4" />
                     </button>
                 </div>
                 
