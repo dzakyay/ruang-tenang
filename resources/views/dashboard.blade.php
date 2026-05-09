@@ -49,20 +49,9 @@
                 </div>
 
                 @if($moodTrend->isNotEmpty())
-                    <!-- Chart SVG Placeholder mimicking the curve -->
-                    <div class="flex-1 relative flex items-center justify-center min-h-[250px]">
-                        <svg class="absolute inset-0 w-full h-full text-[#e8dbce]" preserveAspectRatio="none" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 150 C 50 50, 100 200, 150 150 C 200 100, 250 50, 300 150 C 350 250, 400 100, 500 150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                    </svg>
-
-                    <div class="text-center z-10 bg-white/60 backdrop-blur-sm p-4 rounded-xl mt-12">
-                        <div class="inline-flex justify-center items-center w-8 h-8 rounded-full bg-[#f4ebe1] text-[#a07954] mb-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
-                        </div>
-                        <p class="text-[#614d3c] font-medium text-sm">Grafik Tren Suasana Hati</p>
-                        <p class="text-xs text-gray-400 mt-1">Data menunjukkan ketenangan yang stabil minggu ini.</p>
+                    <div class="flex-1 relative h-[220px]">
+                        <canvas id="dashboardMoodChart"></canvas>
                     </div>
-                </div>
                 @else
                     <div class="flex-1 flex flex-col items-center justify-center min-h-[220px] text-center">
                         <div class="w-14 h-14 bg-[#f4ebe1] rounded-2xl flex items-center justify-center text-2xl mb-4">😐</div>
