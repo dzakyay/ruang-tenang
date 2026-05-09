@@ -29,7 +29,6 @@
             <!-- Top Section -->
             <div>
                 <!-- Logo Sidebar -->
-                <!-- DOKUMENTASI: 'justify-between' dihapus di sini karena tombol X sudah dihilangkan -->
                 <div class="h-24 flex items-center px-8">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                         <x-icons.logo class="w-7 h-7 fill-current text-primary" />
@@ -166,6 +165,9 @@
             </div>
         </main>
     </div>
+
+    @stack('scripts')
 </body>
 
 </html>
+

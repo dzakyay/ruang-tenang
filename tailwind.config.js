@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -17,14 +18,14 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#a07954', // The brown color from mockup
+                    DEFAULT: '#a07954',
                     light: '#d2b48c',
                     dark: '#6e4b2d',
                 },
-                background: '#fdfbf7', // Light beige background
+                background: '#fdfbf7',
             }
         },
     },
 
-    plugins: [forms],
+    plugins: [forms, typography],
 };
