@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('mood');
             $table->integer('score');
+            $table->string('note', 500)->nullable();
             $table->timestamps();
         });
     }

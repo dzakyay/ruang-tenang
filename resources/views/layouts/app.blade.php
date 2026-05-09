@@ -17,6 +17,13 @@
 </head>
 
 <body class="font-sans antialiased text-[#614d3c] bg-background">
+    @php
+        /** @var \App\Models\User $authUser */
+        $authUser     = Auth::user();
+        $userJournals = $authUser->journals()->latest()->get();
+        $hasJournals  = $userJournals->isNotEmpty();
+    @endphp
+
     <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden relative">
 
         <!-- Sidebar Backdrop -->
@@ -60,37 +67,41 @@
                     </a>
 
                     <!-- Jurnal -->
-                    <div x-data="{ open: {{ request()->routeIs('journal.*') ? 'true' : 'false' }} }">
+                    <div x-data="{ journalOpen: {{ request()->routeIs('journal.*') ? 'true' : 'false' }} }">
                         <div
                             class="flex items-center justify-between px-4 py-2 text-sm font-medium rounded-xl {{ request()->routeIs('journal.index') ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
                             <a href="{{ route('journal.index') }}" class="flex items-center flex-1 py-1">
                                 <x-icons.journal class="mr-4 h-5 w-5" />
                                 Jurnal
                             </a>
-                            <button @click="open = !open"
-                                class="ml-2 p-1 focus:outline-none hover:text-primary transition-colors">
-                                <x-icons.chevron-down class="h-4 w-4 transform transition-transform" x-bind:class="{ 'rotate-180': open }" />
-                            </button>
+                            @if ($hasJournals)
+                                <button @click="journalOpen = !journalOpen"
+                                    class="ml-2 p-1 focus:outline-none hover:text-primary transition-colors">
+                                    <x-icons.chevron-down class="h-4 w-4 transform transition-transform" x-bind:class="{ 'rotate-180': journalOpen }" />
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Jurnal Submenu -->
-                        <div x-show="open" x-transition class="mt-1 space-y-1 pl-12 pr-4">
-                            <a href="{{ route('journal.show') }}"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('journal.*') ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 1
-                            </a>
-                            <a href="#"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 2
-                            </a>
-                            <a href="#"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors">
-                                <x-icons.document class="mr-3 h-4 w-4" />
-                                Jurnal 3
-                            </a>
-                        </div>
+                        @if ($hasJournals)
+                            <div x-show="journalOpen" x-transition class="mt-1 space-y-1 pl-12 pr-4">
+                                @foreach ($userJournals as $sidebarJournal)
+                                    <a href="{{ route('journal.show', $sidebarJournal) }}"
+                                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->is('journal/'.$sidebarJournal->id) ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
+                                        <x-icons.document class="mr-3 h-4 w-4" />
+                                        <span class="truncate">{{ $sidebarJournal->title }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="mt-1 pl-12 pr-4">
+                                <a href="{{ route('journal.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-[#a07954] hover:bg-[#F7F4F0] transition-colors">
+                                    <x-icons.document class="mr-3 h-4 w-4" />
+                                    Buat Jurnal Baru
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </nav>
             </div>
@@ -98,8 +109,8 @@
             <!-- Bottom Section -->
             <div class="px-4 pb-8 space-y-4">
                 <!-- User Profile -->
-                <div x-data="{ open: false }" class="relative px-2">
-                    <button @click="open = !open" @click.away="open = false"
+                <div x-data="{ profileOpen: false }" class="relative px-2">
+                    <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false"
                         class="flex items-center w-full focus:outline-none hover:bg-[#F7F4F0]/50 p-2 rounded-xl transition-colors">
                         <div
                             class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary-light flex items-center justify-center text-white overflow-hidden shadow-sm flex-shrink-0">
@@ -109,11 +120,11 @@
                         <div class="ml-3 flex-1 text-left">
                             <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
                         </div>
-                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-transform" x-bind:class="{ 'rotate-180': open }" />
+                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-transform" x-bind:class="{ 'rotate-180': profileOpen }" />
                     </button>
 
                     <!-- Dropdown Menu -->
-                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                    <div x-show="profileOpen" x-transition:enter="transition ease-out duration-100"
                         x-transition:enter-start="transform opacity-0 scale-95"
                         x-transition:enter-end="transform opacity-100 scale-100"
                         x-transition:leave="transition ease-in duration-75"
@@ -169,5 +180,4 @@
     @stack('scripts')
 </body>
 
-</html>
-
+</html> 

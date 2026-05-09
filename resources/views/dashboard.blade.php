@@ -48,9 +48,18 @@
                     <a href="{{ route('mood') }}" class="text-sm text-gray-400 hover:text-[#7a5c43] transition">Lihat Detail →</a>
                 </div>
 
-                @if($moodTrend->isNotEmpty())
-                    <div class="flex-1 relative h-[220px]">
-                        <canvas id="dashboardMoodChart"></canvas>
+                <!-- Chart SVG Placeholder mimicking the curve -->
+                <div class="flex-1 relative flex items-center justify-center min-h-[250px]">
+                    <svg class="absolute inset-0 w-full h-full text-[#e8dbce]" preserveAspectRatio="none" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 150 C 50 50, 100 200, 150 150 C 200 100, 250 50, 300 150 C 350 250, 400 100, 500 150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+
+                    <div class="text-center z-10 bg-white/60 backdrop-blur-sm p-4 rounded-xl mt-12">
+                        <div class="inline-flex justify-center items-center w-8 h-8 rounded-full bg-[#f4ebe1] text-[#a07954] mb-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                        </div>
+                        <p class="text-[#614d3c] font-medium text-sm">Grafik Tren Suasana Hati</p>
+                        <p class="text-xs text-gray-400 mt-1">Data menunjukkan ketenangan yang stabil minggu ini.</p>
                     </div>
                 @else
                     <div class="flex-1 flex flex-col items-center justify-center min-h-[220px] text-center">
@@ -80,7 +89,8 @@
                         @endif
                     </p>
                 </div>
-                <a href="{{ route('journal.index') }}" class="relative z-10 block w-full bg-white text-[#5c442b] text-center font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition shadow-sm">
+
+                <a href="{{ route('journal.create') }}" class="relative z-10 block w-full bg-white text-[#5c442b] text-center font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition shadow-sm">
                     Mulai Menulis
                 </a>
             </div>
@@ -100,38 +110,64 @@
             </div>
         </div>
 
-        {{-- Modal Mood Tracker --}}
-        <div x-show="showMoodModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div @click="showMoodModal = false"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        <!-- Modal Mood Tracker -->
+        <div x-show="showMoodModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+            <!-- Overlay -->
+            <div x-show="showMoodModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
                  class="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
 
-            <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+            <!-- Modal Content -->
+            <div x-show="showMoodModal"
+                 @click.away="showMoodModal = false"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  class="relative bg-[#F9F7F4] rounded-[2rem] p-8 sm:p-10 max-w-md w-full shadow-2xl z-10 flex flex-col items-center border border-[#e8dbce]/50">
-                
+
                 <div class="w-12 h-1 bg-[#d4c3b3] rounded-full mb-8"></div>
+
                 <h2 class="text-3xl font-serif text-[#1c1917] text-center mb-10 leading-tight">Bagaimana perasaanmu<br>hari ini?</h2>
 
                 <div class="flex justify-between w-full mb-8 px-2">
-                    @foreach($moods as $key => $moodData)
-                        <button type="button" @click="selectMood('{{ $key }}', {{ $moodData['score'] }})"
-                                class="flex flex-col items-center gap-2 group outline-none">
-                            <div :class="selectedMood === '{{ $key }}'
-                                    ? 'bg-[#a07954] -translate-y-2 shadow-[0_8px_20px_rgba(160,121,84,0.4)] w-16 h-16 text-3xl'
-                                    : 'bg-white group-hover:-translate-y-1 w-12 h-12 sm:w-14 sm:h-14 text-2xl'"
-                                 class="rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300">
-                                {{ $moodData['emoji'] }}
-                            </div>
-                            <span :class="selectedMood === '{{ $key }}' ? 'text-[#a07954]' : 'text-gray-400'"
-                                  class="text-[10px] font-bold uppercase tracking-wide transition-colors">
-                                {{ $moodData['label'] }}
-                            </span>
-                        </button>
-                    @endforeach
+                    <!-- Sedih -->
+                    <button class="flex flex-col items-center gap-2 group outline-none">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😔</div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Sedih</span>
+                    </button>
+                    <!-- Biasa -->
+                    <button class="flex flex-col items-center gap-2 group outline-none">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😐</div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Biasa</span>
+                    </button>
+                    <!-- Senang (Active) -->
+                    <button class="flex flex-col items-center gap-2 outline-none">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-[#a07954] rounded-2xl flex items-center justify-center text-3xl shadow-[0_8px_20px_rgba(160,121,84,0.4)] -translate-y-2">😊</div>
+                        <span class="text-[10px] font-bold text-[#a07954] uppercase tracking-wide">Senang</span>
+                    </button>
+                    <!-- Sangat -->
+                    <button class="flex flex-col items-center gap-2 group outline-none">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😍</div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Sangat</span>
+                    </button>
+                    <!-- Semangat -->
+                    <button class="flex flex-col items-center gap-2 group outline-none">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">🔥</div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Semangat</span>
+                    </button>
+                </div>
+
+                <div class="w-full text-left mb-8">
+                    <label class="block text-xs font-semibold text-[#614d3c] mb-2 tracking-wide">Ceritakan sedikit (opsional)</label>
+                    <textarea class="w-full bg-white border-0 rounded-2xl p-4 text-sm resize-none focus:ring-2 focus:ring-[#a07954] outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]" rows="3" placeholder="Apa yang ada di pikiranmu..."></textarea>
                 </div>
 
                 <p x-show="errorMsg" x-text="errorMsg" class="text-red-500 text-sm mb-4 text-center"></p>

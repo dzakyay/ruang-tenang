@@ -1,61 +1,8 @@
 <x-app-layout>
-    {{-- ─────────────────────────────────────────────────────────────────────── --}}
-    {{-- Page State managed by Alpine                                            --}}
-    {{-- hasJournals  → driven by real server data                               --}}
-    {{-- showAddModal → toggles the create-journal modal                        --}}
-    {{-- ─────────────────────────────────────────────────────────────────────── --}}
-    <div
-        x-data="{
-            hasJournals: {{ $journals->isNotEmpty() ? 'true' : 'false' }},
-            showAddModal: {{ session('showAddModal', false) ? 'true' : 'false' }},
-            bannerPreview: null,
-            bannerName: null,
-            handleBanner(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                this.bannerName = file.name;
-                const reader = new FileReader();
-                reader.onload = (e) => { this.bannerPreview = e.target.result; };
-                reader.readAsDataURL(file);
-            },
-            triggerBanner() {
-                this.$refs.bannerInput.click();
-            }
-        }"
-        class="px-6 md:px-10 py-12 max-w-7xl mx-auto min-h-full flex flex-col relative"
-    >
+    <!-- State Management with Alpine -->
+    <div x-data="{ hasJournals: false, showAddModal: false }" class="px-10 py-12 max-w-7xl mx-auto min-h-full flex flex-col relative">
 
-        {{-- ════════════════════ SUCCESS / ERROR FLASH ════════════════════ --}}
-        @if (session('success'))
-            <div
-                x-data="{ show: true }"
-                x-show="show"
-                x-init="setTimeout(() => show = false, 3000)"
-                x-transition:leave="transition ease-in duration-300"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-2"
-                class="fixed top-6 right-6 z-[100] flex items-center gap-3 bg-white border border-green-100 text-green-700 text-sm font-medium px-5 py-3 rounded-2xl shadow-lg"
-            >
-                <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        {{-- ════════════════════ VALIDATION ERRORS ════════════════════ --}}
-        @if ($errors->any())
-            <div class="mb-6 bg-red-50 border border-red-100 rounded-2xl p-5">
-                <p class="text-sm font-semibold text-red-700 mb-2">Terdapat beberapa kesalahan:</p>
-                <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        {{-- ════════════════════ EMPTY STATE ════════════════════ --}}
+        <!-- ================= EMPTY STATE ================= -->
         <div x-show="!hasJournals" class="flex-1 flex flex-col items-center justify-center h-full pt-32">
             {{-- Illustrated empty icon --}}
             <div class="w-28 h-28 rounded-full bg-[#F7F4F0] flex items-center justify-center mb-8 shadow-inner">
@@ -72,6 +19,9 @@
             >
                 Tambah Jurnal Pertama
             </button>
+
+            <!-- Development toggle for demonstration -->
+            <button @click="hasJournals = true" class="mt-12 text-xs text-gray-300 hover:text-gray-500 underline">Lihat versi dengan data (Populated State)</button>
         </div>
 
         {{-- ════════════════════ POPULATED STATE ════════════════════ --}}
@@ -114,20 +64,26 @@
 
                 {{-- Horizontal Scrollable Cards --}}
                 <div class="flex overflow-x-auto pb-6 -mx-4 px-4 gap-6 snap-x hide-scrollbar">
+                    <!-- Card 1 -->
                     @foreach ($journals as $journal)
-                    <a
-                        href="{{ route('journal.show', $journal) }}"
-                        class="min-w-[240px] h-64 rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50"
-                        style="background-color: #f9f7f4;"
-                    >
-                        {{-- Banner thumbnail if available --}}
-                        @if ($journal->banner_url)
-                            <div class="h-24 overflow-hidden ml-6">
-                                <img src="{{ $journal->banner_url }}" alt="{{ $journal->title }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
-                            </div>
-                        @else
-                            <div class="h-24 bg-[#e3dcd1]/50 ml-6"></div>
-                        @endif
+                    <a href="{{ route('journal.show', $journal) }}" class="min-w-[240px] h-64 bg-[#f9f7f4] rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50">
+                    @endforeach
+                        <!-- Left Accent Color -->
+                        <div class="absolute left-0 top-0 bottom-0 w-6 bg-[#86654b]"></div>
+                        <div class="h-20 bg-[#e3dcd1]/50 ml-6"></div>
+                        <div class="flex-1 p-6 pl-10 flex items-center">
+                            <h3 class="text-2xl font-bold text-[#1c1917] group-hover:text-[#86654b] transition">Jurnal 1</h3>
+                        </div>
+                    </a>
+
+                    <!-- Card 2 -->
+                    <a href="#" class="min-w-[240px] h-64 bg-[#f9f7f4] rounded-[2rem] flex flex-col relative overflow-hidden shadow-sm hover:shadow-md transition snap-start group border border-[#e8dbce]/50">
+                        <div class="absolute left-0 top-0 bottom-0 w-6 bg-[#86654b]"></div>
+                        <div class="h-20 bg-[#e3dcd1]/50 ml-6"></div>
+                        <div class="flex-1 p-6 pl-10 flex items-center">
+                            <h3 class="text-2xl font-bold text-[#1c1917] group-hover:text-[#86654b] transition">Jurnal 2</h3>
+                        </div>
+                    </a>
 
                         {{-- Left Accent --}}
                         <div class="absolute left-0 top-0 bottom-0 w-6 bg-[#86654b]"></div>
@@ -232,46 +188,33 @@
                     </div>
                 </div>
             </div>
+
+            <button @click="hasJournals = false" class="mt-12 text-xs text-gray-300 hover:text-gray-500 underline w-full text-center">Lihat versi kosong (Empty State)</button>
         </div>
 
 
         {{-- ════════════════════ ADD JOURNAL MODAL ════════════════════ --}}
         <div x-show="showAddModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <!-- Overlay -->
+            <div x-show="showAddModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
 
-            {{-- Overlay --}}
-            <div
-                x-show="showAddModal"
-                @click="showAddModal = false"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="absolute inset-0 bg-white/80 backdrop-blur-sm"
-            ></div>
-
-            {{-- Modal Card --}}
-            <div
-                x-show="showAddModal"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-                class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl z-10 border border-gray-100"
-            >
-                {{-- Close button --}}
-                <button
-                    @click="showAddModal = false"
-                    class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
-                    aria-label="Tutup modal"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+            <!-- Modal Content -->
+            <div x-show="showAddModal"
+                 @click.away="showAddModal = false"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl z-10 border border-gray-100">
 
                 <h2 class="text-3xl font-serif text-[#1c1917] text-center mb-8 font-bold">Tambah Jurnal Baru</h2>
 
@@ -338,15 +281,11 @@
 
                     {{-- Title --}}
                     <div class="mb-4">
-                        <input
-                            type="text"
-                            name="title"
-                            id="journal-title"
-                            value="{{ old('title') }}"
-                            class="w-full bg-[#f9f7f4] border-0 rounded-2xl px-5 py-4 text-sm font-medium placeholder-gray-400 focus:ring-2 focus:ring-[#86654b] outline-none"
-                            placeholder="Nama Jurnal *"
-                            required
-                        >
+                        <input type="text" class="w-full bg-[#f9f7f4] border-0 rounded-2xl px-5 py-4 text-sm font-medium placeholder-gray-400 focus:ring-2 focus:ring-[#86654b] outline-none" placeholder="Nama Jurnal">
+                    </div>
+
+                    <div class="mb-8">
+                        <textarea class="w-full bg-[#f9f7f4] border-0 rounded-2xl px-5 py-4 text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#86654b] outline-none resize-none" rows="3" placeholder="Deskripsi Jurnal"></textarea>
                     </div>
 
                     {{-- Description --}}

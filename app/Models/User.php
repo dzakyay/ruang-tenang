@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -20,36 +18,46 @@ class User extends Authenticatable
         'profile_picture',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+    ];
 
-    public function emotions()
+    // ── Relationships ─────────────────────────────────────────────────────────
+
+    public function emotions(): HasMany
     {
         return $this->hasMany(Emotion::class);
     }
 
-    public function journals()
+    public function journals(): HasMany
     {
         return $this->hasMany(Journal::class);
+    }
+
+    // ── Helper methods ────────────────────────────────────────────────────────
+
+    public function todayEmotion(): ?Emotion
+    {
+        return $this->emotions()
+            ->whereDate('created_at', today())
+            ->latest()
+            ->first();
+    }
+
+    // ── Accessors ─────────────────────────────────────────────────────────────
+
+    public function getProfilePictureUrlAttribute(): string
+    {
+        if ($this->profile_picture) {
+            return asset('storage/' . $this->profile_picture);
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=a07954&color=fff';
     }
 }

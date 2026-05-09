@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ensiklopedias', function (Blueprint $table) {
+        Schema::create('encyclopedias', function (Blueprint $table) {
             $table->id();
-            $table->string('feeling');
-            $table->text('description');
+            $table->string('feeling')->nullable();
+            $table->text('description')->nullable();
+            $table->string('category')->default('Reflektif');
             $table->string('banner')->nullable();
+            $table->text('quote')->nullable();
+            $table->longText('content')->nullable();
+            $table->json('tips')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ensiklopedias');
+        Schema::dropIfExists('encyclopedias');
     }
 };
