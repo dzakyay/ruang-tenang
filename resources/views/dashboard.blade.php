@@ -48,9 +48,10 @@
                     <a href="{{ route('mood') }}" class="text-sm text-gray-400 hover:text-[#7a5c43] transition">Lihat Detail →</a>
                 </div>
 
-                <!-- Chart SVG Placeholder mimicking the curve -->
-                <div class="flex-1 relative flex items-center justify-center min-h-[250px]">
-                    <svg class="absolute inset-0 w-full h-full text-[#e8dbce]" preserveAspectRatio="none" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                @if($moodTrend->isNotEmpty())
+                    <!-- Chart SVG Placeholder mimicking the curve -->
+                    <div class="flex-1 relative flex items-center justify-center min-h-[250px]">
+                        <svg class="absolute inset-0 w-full h-full text-[#e8dbce]" preserveAspectRatio="none" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0 150 C 50 50, 100 200, 150 150 C 200 100, 250 50, 300 150 C 350 250, 400 100, 500 150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
                     </svg>
 
@@ -61,6 +62,7 @@
                         <p class="text-[#614d3c] font-medium text-sm">Grafik Tren Suasana Hati</p>
                         <p class="text-xs text-gray-400 mt-1">Data menunjukkan ketenangan yang stabil minggu ini.</p>
                     </div>
+                </div>
                 @else
                     <div class="flex-1 flex flex-col items-center justify-center min-h-[220px] text-center">
                         <div class="w-14 h-14 bg-[#f4ebe1] rounded-2xl flex items-center justify-center text-2xl mb-4">😐</div>
@@ -138,36 +140,21 @@
                 <h2 class="text-3xl font-serif text-[#1c1917] text-center mb-10 leading-tight">Bagaimana perasaanmu<br>hari ini?</h2>
 
                 <div class="flex justify-between w-full mb-8 px-2">
-                    <!-- Sedih -->
-                    <button class="flex flex-col items-center gap-2 group outline-none">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😔</div>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Sedih</span>
-                    </button>
-                    <!-- Biasa -->
-                    <button class="flex flex-col items-center gap-2 group outline-none">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😐</div>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Biasa</span>
-                    </button>
-                    <!-- Senang (Active) -->
-                    <button class="flex flex-col items-center gap-2 outline-none">
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-[#a07954] rounded-2xl flex items-center justify-center text-3xl shadow-[0_8px_20px_rgba(160,121,84,0.4)] -translate-y-2">😊</div>
-                        <span class="text-[10px] font-bold text-[#a07954] uppercase tracking-wide">Senang</span>
-                    </button>
-                    <!-- Sangat -->
-                    <button class="flex flex-col items-center gap-2 group outline-none">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">😍</div>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Sangat</span>
-                    </button>
-                    <!-- Semangat -->
-                    <button class="flex flex-col items-center gap-2 group outline-none">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:-translate-y-1 transition duration-300">🔥</div>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Semangat</span>
-                    </button>
-                </div>
-
-                <div class="w-full text-left mb-8">
-                    <label class="block text-xs font-semibold text-[#614d3c] mb-2 tracking-wide">Ceritakan sedikit (opsional)</label>
-                    <textarea class="w-full bg-white border-0 rounded-2xl p-4 text-sm resize-none focus:ring-2 focus:ring-[#a07954] outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]" rows="3" placeholder="Apa yang ada di pikiranmu..."></textarea>
+                    @foreach($moods as $key => $moodData)
+                        <button type="button" @click="selectMood('{{ $key }}', {{ $moodData['score'] }})"
+                                class="flex flex-col items-center gap-2 group outline-none">
+                            <div :class="selectedMood === '{{ $key }}'
+                                    ? 'bg-[#a07954] -translate-y-2 shadow-[0_8px_20px_rgba(160,121,84,0.4)] w-16 h-16 text-3xl'
+                                    : 'bg-white group-hover:-translate-y-1 w-12 h-12 sm:w-14 sm:h-14 text-2xl'"
+                                 class="rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300">
+                                {{ $moodData['emoji'] }}
+                            </div>
+                            <span :class="selectedMood === '{{ $key }}' ? 'text-[#a07954]' : 'text-gray-400'"
+                                  class="text-[10px] font-bold uppercase tracking-wide transition-colors">
+                                {{ $moodData['label'] }}
+                            </span>
+                        </button>
+                    @endforeach
                 </div>
 
                 <p x-show="errorMsg" x-text="errorMsg" class="text-red-500 text-sm mb-4 text-center"></p>
