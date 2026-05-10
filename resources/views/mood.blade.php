@@ -1,18 +1,21 @@
 <x-app-layout>
     @php
-        $firstDay    = now()->startOfMonth();
-        $daysInMonth = (int) now()->daysInMonth;
-        $offset      = $firstDay->dayOfWeekIso - 1;
-        $today       = (int) now()->day;
-        $monthLabel  = $firstDay->translatedFormat('F Y');
+        $today      = (int) now()->day;
+        $thisYear   = (int) now()->year;
+        $thisMonth  = (int) now()->month;
     @endphp
 
     <script>
         window.__moodPageConfig = {
-            showModal: {{ $todayEmotion ? 'false' : 'true' }},
-            storeUrl:  '{{ route('mood.store') }}',
+            showModal:  {{ $todayEmotion ? 'false' : 'true' }},
+            storeUrl:   '{{ route('mood.store') }}',
+            chartUrl:   '{{ route('mood.chart-data') }}',
         };
-        window.__moodTrendData = @json($trendData);
+        window.__moodTrendData   = @json($trendData);
+        window.__monthEmotions   = @json($monthEmotions);
+        window.__today           = {{ $today }};
+        window.__thisMonth       = {{ $thisMonth }};
+        window.__thisYear        = {{ $thisYear }};
     </script>
 
     <div x-data="moodPage()" class="px-6 lg:px-10 py-12 max-w-7xl mx-auto">
@@ -84,7 +87,8 @@
                         <path d="M21 3C21 3 14 3 8 9C2 15 2 21 2 21C2 21 8 21 14 15C20 9 21 3 21 3Z"/>
                     </svg>
                     <div class="relative z-10">
-                        <p class="text-xs font-medium tracking-wider text-white/60 uppercase mb-2">Mood Rata-rata</p>
+                        <p class="text-xs font-medium tracking-wider text-white/60 uppercase mb-1">Mood Rata-rata</p>
+                        <p class="text-[10px] text-white/40 mb-3" x-text="calendarMonthLabel"></p>
                         @if($avgScore > 0)
                             <h3 class="text-3xl font-serif italic text-white/90">{{ $avgMoodLabel }}</h3>
                         @else
@@ -125,31 +129,52 @@
         <div class="bg-white rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-xl font-bold text-[#7a5c43]">Kalender Suasana Hati</h2>
-                <span class="font-medium text-[#614d3c]">{{ $monthLabel }}</span>
+                {{-- Navigation --}}
+                <div class="flex items-center gap-3">
+                    <button @click="prevMonth()"
+                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f4ebe1] text-[#614d3c] transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="font-medium text-[#614d3c] min-w-[120px] text-center" x-text="calendarMonthLabel"></span>
+                    <button @click="nextMonth()"
+                            :disabled="isCurrentMonth"
+                            :class="isCurrentMonth ? 'opacity-30 cursor-not-allowed' : 'hover:bg-[#f4ebe1]'"
+                            class="w-8 h-8 flex items-center justify-center rounded-full text-[#614d3c] transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
             </div>
 
+            {{-- Calendar Grid (Alpine renders this) --}}
             <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-8 text-center">
-                @foreach(['Sen','Sel','Rab','Kam','Jum','Sab','Min'] as $dayLabel)
-                    <div class="text-xs font-semibold text-gray-400 py-2">{{ $dayLabel }}</div>
-                @endforeach
+                <template x-for="label in ['Sen','Sel','Rab','Kam','Jum','Sab','Min']" :key="label">
+                    <div class="text-xs font-semibold text-gray-400 py-2" x-text="label"></div>
+                </template>
 
-                @for($i = 0; $i < $offset; $i++)
+                {{-- Empty offset cells --}}
+                <template x-for="i in calendarOffset" :key="'offset-'+i">
                     <div></div>
-                @endfor
+                </template>
 
-                @for($day = 1; $day <= $daysInMonth; $day++)
-                    @php $emotion = $monthEmotions->get($day); @endphp
-                    <div class="{{ $day === $today ? 'bg-[#F7F4F0] rounded-2xl ring-2 ring-[#d4b996]' : '' }} py-3 sm:py-4 flex flex-col items-center gap-1 transition">
-                        <span class="{{ $day === $today ? 'text-[#614d3c] font-bold' : 'text-gray-600' }} text-sm">{{ $day }}</span>
-                        @if($emotion)
-                            <span class="w-2 h-2 rounded-full" style="background-color: {{ $emotion['color'] }}" title="{{ $emotion['emoji'] }}"></span>
-                        @else
+                {{-- Day cells --}}
+                <template x-for="day in calendarDays" :key="day">
+                    <div :class="isToday(day) ? 'bg-[#F7F4F0] rounded-2xl ring-2 ring-[#d4b996]' : ''"
+                         class="py-3 sm:py-4 flex flex-col items-center gap-1 transition">
+                        <span :class="isToday(day) ? 'text-[#614d3c] font-bold' : 'text-gray-600'"
+                              class="text-sm" x-text="day"></span>
+                        <template x-if="calendarEmotions[day]">
+                            <span class="w-2 h-2 rounded-full"
+                                  :style="'background-color:' + calendarEmotions[day].color"
+                                  :title="calendarEmotions[day].emoji"></span>
+                        </template>
+                        <template x-if="!calendarEmotions[day]">
                             <span class="w-2 h-2"></span>
-                        @endif
+                        </template>
                     </div>
-                @endfor
+                </template>
             </div>
 
+            {{-- Legend --}}
             <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-6 border-t border-gray-100">
                 @foreach($moods as $moodData)
                     <div class="flex items-center gap-2">

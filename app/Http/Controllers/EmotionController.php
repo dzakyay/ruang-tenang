@@ -8,15 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class EmotionController extends Controller
 {
-    /**
-     * Mood Tracker: analytics & calendar page.
-     */
     public function index()
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Last 7 days trend for the line chart
         $trendData = $user->emotions()
             ->lastDays(7)
             ->orderBy('created_at')
@@ -29,7 +25,7 @@ class EmotionController extends Controller
                 'color' => $e->mood_color,
             ]);
 
-        // This month's emotions grouped by day number (for calendar dots)
+        // Current month emotions for calendar (keyed by day)
         $monthEmotions = $user->emotions()
             ->thisMonth()
             ->orderBy('created_at')
@@ -41,21 +37,19 @@ class EmotionController extends Controller
                 'emoji' => $group->last()->mood_emoji,
             ]);
 
-        // Average score this month → human-readable label
+        // Average score this month
         $avgScore     = (float) $user->emotions()->thisMonth()->avg('score');
         $avgMoodLabel = $this->scoreToLabel($avgScore);
 
-        // Happiest day this month
+        // Happiest day this month = highest score, tie-break by latest
         $happiestEmotion = $user->emotions()
             ->thisMonth()
             ->orderByDesc('score')
+            ->orderByDesc('created_at')
             ->first();
 
-        // Show/hide mood input modal
         $todayEmotion = $user->todayEmotion();
-
-        // All mood options for the form
-        $moods = Emotion::MOODS;
+        $moods        = Emotion::MOODS;
 
         return view('mood', compact(
             'trendData',
@@ -68,9 +62,6 @@ class EmotionController extends Controller
         ));
     }
 
-    /**
-     * Store a new emotion entry (supports both regular POST and AJAX).
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -87,31 +78,57 @@ class EmotionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Perasaanmu telah disimpan.',
-                'emotion' => $emotion,
+                'emotion' => array_merge($emotion->toArray(), [
+                    'color' => $emotion->mood_color,
+                    'emoji' => $emotion->mood_emoji,
+                    'label' => $emotion->mood_label,
+                ]),
             ]);
         }
 
         return redirect()->route('dashboard')
-            ->with('success', 'Perasaanmu telah disimpan. Semoga harimu menyenangkan!');
+            ->with('success', 'Perasaanmu telah disimpan!');
     }
 
     /**
-     * JSON endpoint for Chart.js — accepts ?days=7 or ?days=30.
+     * JSON for Chart.js (?days=7|30)
+     * JSON for calendar (?type=calendar&month=M&year=Y)
      */
     public function chartData(Request $request)
     {
-        $days = (int) $request->query('days', 7);
-        $days = in_array($days, [7, 30]) ? $days : 7;
-
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Calendar mode: return day-keyed emotion map for a given month/year
+        if ($request->query('type') === 'calendar') {
+            $month = (int) $request->query('month', now()->month);
+            $year  = (int) $request->query('year',  now()->year);
+
+            $data = $user->emotions()
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->orderBy('created_at')
+                ->get()
+                ->groupBy(fn ($e) => $e->created_at->day)
+                ->map(fn ($group) => [
+                    'mood'  => $group->last()->mood,
+                    'color' => $group->last()->mood_color,
+                    'emoji' => $group->last()->mood_emoji,
+                ]);
+
+            return response()->json($data);
+        }
+
+        // Trend chart mode
+        $days = (int) $request->query('days', 7);
+        $days = in_array($days, [7, 30]) ? $days : 7;
 
         $data = $user->emotions()
             ->lastDays($days)
             ->orderBy('created_at')
             ->get(['mood', 'score', 'created_at'])
             ->map(fn ($e) => [
-                'label' => $e->created_at->format('d M'),
+                'date'  => $e->created_at->format('D, d M'),
                 'score' => $e->score,
                 'mood'  => $e->mood_label,
                 'emoji' => $e->mood_emoji,
@@ -120,8 +137,6 @@ class EmotionController extends Controller
 
         return response()->json($data);
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private function scoreToLabel(float $score): string
     {

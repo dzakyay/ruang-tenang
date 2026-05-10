@@ -37,7 +37,7 @@
         <!-- Actionable Steps -->
         <div>
             <h2 class="text-3xl font-serif font-bold text-[#a07954] mb-8">Langkah Kecil untuk Tenang</h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Step 1 -->
                 <div class="bg-white rounded-[2rem] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col hover:shadow-md transition">
@@ -78,7 +78,7 @@
                     <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
                         Gunakan fitur Jurnal di RuangTenang untuk menuangkan apa yang mengganjal di hati.
                     </p>
-                    <a href="{{ route('journal.show') }}" class="inline-flex items-center text-[#d4b996] font-medium text-sm hover:text-[#a07954] transition">
+                    <a href="{{ route('journal.index') }}" class="inline-flex items-center text-[#d4b996] font-medium text-sm hover:text-[#a07954] transition">
                         Tulis Sekarang
                         <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
