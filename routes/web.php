@@ -41,6 +41,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Journal ───────────────────────────────────────────────────────────────
 
+    // Upload inline images for Tiptap editor
+    Route::post('/journal/upload-image', [JournalController::class, 'uploadImage'])
+        ->name('journal.uploadImage');
+
     Route::resource('journal', JournalController::class)->except(['destroy']);
 
     // Soft-delete (POST method to avoid JS dependency for DELETE)

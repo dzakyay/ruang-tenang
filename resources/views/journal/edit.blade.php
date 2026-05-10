@@ -79,8 +79,13 @@
                     <hr class="border-[#e8dbce] mb-8">
 
                     {{-- ── Tiptap Editor ── --}}
-                    <div x-data="tiptapEditor({ placeholder: 'Tulis isi jurnal kamu di sini...', content: `{!! addslashes($journal->content ?? '') !!}` })"
-                        x-init="init()" @destroy="destroy()">
+                    {{-- Content is passed via JSON script tag to avoid HTML/backtick escaping --}}
+                    <script id="tiptap-initial-content" type="application/json">{!! json_encode($journal->content ?? '') !!}</script>
+
+                    <div x-data="tiptapEditor()"
+                         x-init="init()"
+                         data-placeholder="Tulis isi jurnal kamu di sini..."
+                         data-content-id="tiptap-initial-content">
 
                         <input type="hidden" name="content" id="tiptap-content-input" :value="content">
 
@@ -88,43 +93,43 @@
                         <div
                             class="flex flex-wrap items-center gap-1 mb-4 p-2 bg-[#faf8f5] rounded-xl border border-[#e8dbce]/60 sticky top-4 z-10">
 
-                            <button type="button" @click="setHeading(1)"
-                                :class="isActive('heading',{level:1}) ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="setHeading(1)"
+                                :class="active.heading1 ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition">H1</button>
-                            <button type="button" @click="setHeading(2)"
-                                :class="isActive('heading',{level:2}) ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="setHeading(2)"
+                                :class="active.heading2 ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition">H2</button>
-                            <button type="button" @click="setHeading(3)"
-                                :class="isActive('heading',{level:3}) ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="setHeading(3)"
+                                :class="active.heading3 ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition">H3</button>
 
                             <div class="w-px h-5 bg-[#e8dbce] mx-1"></div>
 
-                            <button type="button" @click="toggleBold()"
-                                :class="isActive('bold') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleBold()"
+                                :class="active.bold ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Bold">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M15.6 11.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="toggleItalic()"
-                                :class="isActive('italic') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleItalic()"
+                                :class="active.italic ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Italic">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="toggleUnderline()"
-                                :class="isActive('underline') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleUnderline()"
+                                :class="active.underline ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Underline">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="toggleStrike()"
-                                :class="isActive('strike') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleStrike()"
+                                :class="active.strike ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Strikethrough">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
@@ -134,41 +139,32 @@
 
                             <div class="w-px h-5 bg-[#e8dbce] mx-1"></div>
 
-                            <button type="button" @click="toggleBulletList()"
-                                :class="isActive('bulletList') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleBulletList()"
+                                :class="active.bulletList ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Bullet list">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="toggleOrderedList()"
-                                :class="isActive('orderedList') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleOrderedList()"
+                                :class="active.orderedList ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Numbered list">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="toggleBlockquote()"
-                                :class="isActive('blockquote') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
+                            <button type="button" @mousedown.prevent @click="toggleBlockquote()"
+                                :class="active.blockquote ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
                                 class="p-1.5 rounded-lg transition" title="Blockquote">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
                                 </svg>
                             </button>
 
-                            <div class="w-px h-5 bg-[#e8dbce] mx-1"></div>
 
-                            <button type="button" @click="setLink()"
-                                :class="isActive('link') ? 'bg-[#614d3c] text-white' : 'text-gray-500 hover:bg-[#f0ebe4]'"
-                                class="p-1.5 rounded-lg transition" title="Link">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
-                                </svg>
-                            </button>
-                            <button type="button" @click="insertImage()"
+                            <button type="button" @mousedown.prevent @click="insertImage()"
                                 class="p-1.5 rounded-lg text-gray-500 hover:bg-[#f0ebe4] transition" title="Image URL">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
@@ -178,14 +174,14 @@
 
                             <div class="w-px h-5 bg-[#e8dbce] mx-1"></div>
 
-                            <button type="button" @click="undo()"
+                            <button type="button" @mousedown.prevent @click="undo()"
                                 class="p-1.5 rounded-lg text-gray-500 hover:bg-[#f0ebe4] transition" title="Undo">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
                                 </svg>
                             </button>
-                            <button type="button" @click="redo()"
+                            <button type="button" @mousedown.prevent @click="redo()"
                                 class="p-1.5 rounded-lg text-gray-500 hover:bg-[#f0ebe4] transition" title="Redo">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
@@ -197,7 +193,8 @@
                         </div>
 
                         <div x-ref="editorContent" class="min-h-[320px] focus-within:outline-none"></div>
-                    </div>
+
+                    </div>{{-- end tiptapEditor x-data --}}
 
                 </div>
             </div>

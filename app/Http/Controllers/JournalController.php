@@ -141,6 +141,25 @@ class JournalController extends Controller
             ->with('success', 'Jurnal berhasil dihapus.');
     }
 
+    /**
+     * Upload inline image from Tiptap editor.
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // Max 5MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('journals/images', 'public');
+            return response()->json([
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['error' => 'Gagal mengunggah gambar.'], 400);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private function authorizeJournal(Journal $journal): void

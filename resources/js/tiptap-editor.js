@@ -1,49 +1,93 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Underline from '@tiptap/extension-underline';
+import ImageResize from 'tiptap-extension-resize-image';
 import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 
 /**
  * Alpine.js component factory for Tiptap rich text editor.
- * Usage:  x-data="tiptapEditor({ placeholder: '...', content: '...' })"
+ *
+ * StarterKit v3 already includes: Bold, Italic, Strike, Underline, Link,
+ * BulletList, OrderedList, Blockquote, Heading, Code, CodeBlock, etc.
+ * We only add extensions NOT in StarterKit: Image, TextAlign, TextStyle, Color, Placeholder.
+ *
+ * Usage:
+ *   <script id="tiptap-initial-content" type="application/json">{{ json_encode($content) }}</script>
+ *   <div x-data="tiptapEditor()" x-init="init()"
+ *        data-placeholder="..." data-content-id="tiptap-initial-content">
+ *
+ * All toolbar buttons MUST have @mousedown.prevent to keep editor focus.
  */
-export function tiptapEditor({ placeholder = 'Mulai menulis jurnal kamu...', content = '' } = {}) {
+export function tiptapEditor() {
+    console.log('tiptapEditor factory called!');
+    let editor = null; // Local non-reactive variable to prevent Alpine proxy issues
+
     return {
-        editor: null,
-        content,
+        content:  '',
         wordCount: 0,
+        _initialized: false,
+
+        active: {
+            bold: false,
+            italic: false,
+            underline: false,
+            strike: false,
+            bulletList: false,
+            orderedList: false,
+            blockquote: false,
+            heading1: false,
+            heading2: false,
+            heading3: false,
+        },
 
         init() {
+            console.log('tiptapEditor init called!', { initialized: this._initialized });
+            if (this._initialized) return;
+            this._initialized = true;
+
             const self = this;
 
-            // --- PERBAIKAN: Mencegah Tiptap ter-render double ---
-            // 1. Hancurkan instance editor lama jika sudah ada
-            if (this.editor) {
-                this.editor.destroy();
+            const placeholder = this.$el.dataset.placeholder ?? 'Mulai menulis...';
+
+            // Read content from a <script type="application/json"> tag
+            const contentId = this.$el.dataset.contentId;
+            let content = '';
+            if (contentId) {
+                const scriptEl = document.getElementById(contentId);
+                if (scriptEl) {
+                    try {
+                        content = JSON.parse(scriptEl.textContent.trim());
+                    } catch (e) {
+                        console.warn('tiptapEditor: could not parse initial content JSON', e);
+                    }
+                }
             }
-            
-            // 2. Kosongkan isi div (container) supaya benar-benar bersih
+
+            this.content = content;
+
             if (this.$refs.editorContent) {
                 this.$refs.editorContent.innerHTML = '';
             }
-            // ----------------------------------------------------
 
-            this.editor = new Editor({
+            editor = new Editor({
                 element: this.$refs.editorContent,
                 extensions: [
+                    // StarterKit v3 already includes:
+                    // Bold, Italic, Strike, Underline, Link, BulletList,
+                    // OrderedList, Blockquote, Heading, Code, CodeBlock,
+                    // HardBreak, HorizontalRule, ListItem, Paragraph, Text
                     StarterKit.configure({
                         heading: { levels: [1, 2, 3] },
+                        link: {
+                            openOnClick:    false,
+                            HTMLAttributes: { class: 'text-[#86654b] underline' },
+                        },
                     }),
                     Placeholder.configure({ placeholder }),
-                    Image.configure({ inline: false, allowBase64: true }),
-                    Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-[#86654b] underline' } }),
-                    Underline,
-                    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+                    ImageResize,
+                    TextAlign.configure({ types: ['heading', 'paragraph', 'image'] }),
                     TextStyle,
                     Color,
                 ],
@@ -54,59 +98,116 @@ export function tiptapEditor({ placeholder = 'Mulai menulis jurnal kamu...', con
                     },
                 },
                 onUpdate({ editor }) {
-                    self.content = editor.getHTML();
-                    self.wordCount = editor.getText().trim().split(/\s+/).filter(Boolean).length;
-                    // keep the hidden input in sync
+                    const html = editor.getHTML();
+
+                    // Keep hidden input in sync (immediate, no Alpine)
                     const hidden = document.getElementById('tiptap-content-input');
-                    if (hidden) hidden.value = self.content;
+                    if (hidden) hidden.value = html;
+
+                    // Defer Alpine reactive update after Tiptap commits the transaction
+                    Promise.resolve().then(() => {
+                        self.content   = html;
+                        self.wordCount = editor.getText().trim().split(/\s+/).filter(Boolean).length || 0;
+                    });
                 },
+                onSelectionUpdate({ editor }) {
+                    self.updateActiveStates(editor);
+                },
+                onTransaction({ editor }) {
+                    self.updateActiveStates(editor);
+                }
             });
 
-            // Initialize word count
-            this.wordCount = this.editor.getText().trim().split(/\s+/).filter(Boolean).length;
+            this.wordCount = editor.getText().trim().split(/\s+/).filter(Boolean).length || 0;
+            this.updateActiveStates();
+        },
+
+        updateActiveStates() {
+            if (!editor) return;
+            // Defer to avoid mismatched transaction errors with Alpine
+            Promise.resolve().then(() => {
+                this.active.bold = editor.isActive('bold');
+                this.active.italic = editor.isActive('italic');
+                this.active.underline = editor.isActive('underline');
+                this.active.strike = editor.isActive('strike');
+                this.active.bulletList = editor.isActive('bulletList');
+                this.active.orderedList = editor.isActive('orderedList');
+                this.active.blockquote = editor.isActive('blockquote');
+                this.active.heading1 = editor.isActive('heading', { level: 1 });
+                this.active.heading2 = editor.isActive('heading', { level: 2 });
+                this.active.heading3 = editor.isActive('heading', { level: 3 });
+            });
         },
 
         destroy() {
-            this.editor?.destroy();
+            editor?.destroy();
         },
-
-        // ── Toolbar helpers ──────────────────────────────────────────────────────
 
         isActive(type, attrs = {}) {
-            return this.editor?.isActive(type, attrs) ?? false;
+            return editor?.isActive(type, attrs) ?? false;
         },
 
-        toggleBold()         { this.editor?.chain().focus().toggleBold().run(); },
-        toggleItalic()       { this.editor?.chain().focus().toggleItalic().run(); },
-        toggleUnderline()    { this.editor?.chain().focus().toggleUnderline().run(); },
-        toggleStrike()       { this.editor?.chain().focus().toggleStrike().run(); },
-        toggleCode()         { this.editor?.chain().focus().toggleCode().run(); },
-        toggleBulletList()   { this.editor?.chain().focus().toggleBulletList().run(); },
-        toggleOrderedList()  { this.editor?.chain().focus().toggleOrderedList().run(); },
-        toggleBlockquote()   { this.editor?.chain().focus().toggleBlockquote().run(); },
-        toggleCodeBlock()    { this.editor?.chain().focus().toggleCodeBlock().run(); },
-        undo()               { this.editor?.chain().focus().undo().run(); },
-        redo()               { this.editor?.chain().focus().redo().run(); },
+        toggleBold()        { editor?.chain().focus().toggleBold().run(); },
+        toggleItalic()      { editor?.chain().focus().toggleItalic().run(); },
+        toggleUnderline()   { editor?.chain().focus().toggleUnderline().run(); },
+        toggleStrike()      { editor?.chain().focus().toggleStrike().run(); },
+        toggleCode()        { editor?.chain().focus().toggleCode().run(); },
+        toggleBulletList()  { editor?.chain().focus().toggleBulletList().run(); },
+        toggleOrderedList() { editor?.chain().focus().toggleOrderedList().run(); },
+        toggleBlockquote()  { editor?.chain().focus().toggleBlockquote().run(); },
+        toggleCodeBlock()   { editor?.chain().focus().toggleCodeBlock().run(); },
+        undo()              { editor?.chain().focus().undo().run(); },
+        redo()              { editor?.chain().focus().redo().run(); },
 
-        setHeading(level)    { this.editor?.chain().focus().toggleHeading({ level }).run(); },
-        setAlign(align)      { this.editor?.chain().focus().setTextAlign(align).run(); },
-
-        setLink() {
-            const url = window.prompt('Masukkan URL:');
-            if (url) {
-                this.editor?.chain().focus().setLink({ href: url }).run();
-            } else if (url === '') {
-                this.editor?.chain().focus().unsetLink().run();
-            }
-        },
+        setHeading(level)   { editor?.chain().focus().toggleHeading({ level }).run(); },
+        setAlign(align)     { editor?.chain().focus().setTextAlign(align).run(); },
 
         insertImage() {
-            const url = window.prompt('URL gambar:');
-            if (url) this.editor?.chain().focus().setImage({ src: url }).run();
+            // Buat elemen input file sementara
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                try {
+                    // Upload ke server
+                    const response = await fetch('/journal/upload-image', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.url) {
+                            editor?.chain().focus().setImage({ src: data.url }).run();
+                        }
+                    } else {
+                        console.error('Gagal mengunggah gambar');
+                        alert('Gagal mengunggah gambar.');
+                    }
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    alert('Terjadi kesalahan saat mengunggah gambar.');
+                }
+            };
+
+            input.click();
         },
 
         setColor(color) {
-            this.editor?.chain().focus().setColor(color).run();
+            editor?.chain().focus().setColor(color).run();
         },
     };
 }

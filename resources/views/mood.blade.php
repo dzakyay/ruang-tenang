@@ -7,7 +7,6 @@
         $monthLabel  = $firstDay->translatedFormat('F Y');
     @endphp
 
-    {{-- Data PHP → JS (tanpa inline di x-data untuk menghindari quote conflict) --}}
     <script>
         window.__moodPageConfig = {
             showModal: {{ $todayEmotion ? 'false' : 'true' }},
