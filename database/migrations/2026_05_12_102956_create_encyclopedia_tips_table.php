@@ -1,24 +1,21 @@
-`<?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('encyclopedias', function (Blueprint $table) {
+        Schema::create('encyclopedia_tips', function (Blueprint $table) {
             $table->id();
-            $table->string('feeling')->nullable();
+            $table->foreignId('encyclopedia_id')->constrained()->cascadeOnDelete();
+            $table->string('title')->nullable();
             $table->text('description')->nullable();
-            $table->string('category')->default('Reflektif');
-            $table->string('banner')->nullable();
-            $table->text('quote')->nullable();
-            $table->longText('content')->nullable();
+            $table->string('icon')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('encyclopedias');
+        Schema::dropIfExists('encyclopedia_tips');
     }
 };

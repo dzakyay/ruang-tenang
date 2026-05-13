@@ -133,7 +133,24 @@ class EncyclopediaSeeder extends Seeder
         ];
 
         foreach ($entries as $entry) {
-            Encyclopedia::create($entry);
+            $tips = json_decode($entry['tips'], true);
+            unset($entry['tips']);
+
+            $encyclopedia = Encyclopedia::firstOrCreate(
+                ['feeling' => $entry['feeling']],
+                $entry
+            );
+
+            // Create tips for this encyclopedia if they don't exist yet
+            if ($encyclopedia->wasRecentlyCreated || $encyclopedia->tips()->count() === 0) {
+                foreach ($tips as $tip) {
+                    $encyclopedia->tips()->create([
+                        'title' => $tip['title'],
+                        'description' => $tip['description'],
+                        'icon' => $tip['icon'] ?? null,
+                    ]);
+                }
+            }
         }
 
         $this->command->info('Encyclopedia seeded with ' . count($entries) . ' entries.');

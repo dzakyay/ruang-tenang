@@ -17,12 +17,12 @@ class Encyclopedia extends Model
         'category',
         'quote',
         'content',
-        'tips',
     ];
 
-    protected $casts = [
-        'tips' => 'array',
-    ];
+    public function tips()
+    {
+        return $this->hasMany(EncyclopediaTip::class);
+    }
 
     // ── Accessors ─────────────────────────────────────────────────────────────
 
