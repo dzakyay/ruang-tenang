@@ -5,6 +5,9 @@ use App\Http\Controllers\EmotionController;
 use App\Http\Controllers\EncyclopediaController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminEncyclopediaController;
 use Illuminate\Support\Facades\Route;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,3 +109,15 @@ Route::prefix('admin')->group(function () {
         return view('admin.encyclopedia.create');
     })->name('admin.encyclopedia.create');
 });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/login',  [AdminAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [AdminAuthController::class, 'login']);
+        Route::post('/logout',[AdminAuthController::class, 'logout'])->name('logout');
+
+        // ── Admin Protected ───────────────────────────────────────────────────────
+        Route::middleware(['auth', 'admin'])->group(function () {
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+            Route::resource('encyclopedia', AdminEncyclopediaController::class)->names('encyclopedia');
+        });
+    });

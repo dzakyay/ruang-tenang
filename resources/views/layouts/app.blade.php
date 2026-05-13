@@ -77,7 +77,7 @@
                             @if ($hasJournals)
                                 <button @click="journalOpen = !journalOpen"
                                     class="ml-2 p-1 focus:outline-none hover:text-primary transition-colors">
-                                    <x-icons.chevron-down class="h-4 w-4 transform transition-transform" x-bind:class="{ 'rotate-180': journalOpen }" />
+                                    <x-icons.chevron-down class="h-4 w-4 transform transition-transform" x-bind:class="{ 'rotate-180': !journalOpen }" />
                                 </button>
                             @endif
                         </div>
@@ -120,7 +120,7 @@
                         <div class="ml-3 flex-1 text-left">
                             <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
                         </div>
-                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-transform" x-bind:class="{ 'rotate-180': profileOpen }" />
+                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-transform" x-bind:class="{ 'rotate-180': !profileOpen }" />
                     </button>
 
                     <!-- Dropdown Menu -->
@@ -180,4 +180,4 @@
     @stack('scripts')
 </body>
 
-</html> 
+</html>

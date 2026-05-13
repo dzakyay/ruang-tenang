@@ -29,6 +29,7 @@ class EncyclopediaController extends Controller
      */
     public function show(Encyclopedia $encyclopedia)
     {
+        $encyclopedia->load('tips');
         return view('encyclopedia.show', compact('encyclopedia'));
     }
 }
