@@ -76,3 +76,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ─────────────────────────────────────────────────────────────────────────────
 
 require __DIR__ . '/auth.php';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin Dummy Routes (For Frontend UI Testing)
+// ─────────────────────────────────────────────────────────────────────────────
+
+Route::prefix('admin')->group(function () {
+    Route::get('/login', function () {
+        return view('admin.auth.login');
+    })->name('admin.login');
+
+    Route::get('/dashboard', function () {
+        // Dummy data for dashboard chart
+        $moodTrend = collect(range(1, 30))->map(function ($day) {
+            return [
+                'date' => now()->subDays(30 - $day)->format('Y-m-d'),
+                'avg_score' => rand(2, 5), // Random score between 2 and 5
+            ];
+        });
+
+        return view('admin.dashboard', compact('moodTrend'));
+    })->name('admin.dashboard');
+
+    Route::get('/encyclopedia', function () {
+        return view('admin.encyclopedia.index');
+    })->name('admin.encyclopedia.index');
+
+    Route::get('/encyclopedia/create', function () {
+        return view('admin.encyclopedia.create');
+    })->name('admin.encyclopedia.create');
+});
