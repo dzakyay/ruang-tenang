@@ -19,9 +19,9 @@
 <body class="font-sans antialiased text-[#614d3c] bg-background">
     @php
         /** @var \App\Models\User $authUser */
-        $authUser     = Auth::user();
+        $authUser = Auth::user();
         $userJournals = $authUser->journals()->latest()->get();
-        $hasJournals  = $userJournals->isNotEmpty();
+        $hasJournals = $userJournals->isNotEmpty();
     @endphp
 
     <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden relative">
@@ -77,17 +77,18 @@
                             @if ($hasJournals)
                                 <button @click="journalOpen = !journalOpen"
                                     class="ml-2 p-1 focus:outline-none hover:text-primary transition-colors">
-                                    <x-icons.chevron-down class="h-4 w-4 transform transition-transform" x-bind:class="{ 'rotate-180': !journalOpen }" />
+                                    <x-icons.chevron-down class="h-4 w-4 transform transition-all"
+                                        x-bind:class="{ 'rotate-180 -translate-y-2': journalOpen }" />
                                 </button>
                             @endif
                         </div>
 
                         <!-- Jurnal Submenu -->
                         @if ($hasJournals)
-                            <div x-show="journalOpen" x-transition class="mt-1 space-y-1 pl-12 pr-4">
+                            <div x-show="journalOpen" x-transition.opacity class="mt-1 space-y-1 pl-12 pr-4">
                                 @foreach ($userJournals as $sidebarJournal)
                                     <a href="{{ route('journal.show', $sidebarJournal) }}"
-                                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->is('journal/'.$sidebarJournal->id) ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
+                                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->is('journal/' . $sidebarJournal->id) ? 'text-primary bg-[#F7F4F0]' : 'text-gray-400 hover:text-primary hover:bg-[#F7F4F0]/50 transition-colors' }}">
                                         <x-icons.document class="mr-3 h-4 w-4" />
                                         <span class="truncate">{{ $sidebarJournal->title }}</span>
                                     </a>
@@ -120,16 +121,15 @@
                         <div class="ml-3 flex-1 text-left">
                             <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
                         </div>
-                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-transform" x-bind:class="{ 'rotate-180': !profileOpen }" />
+                        <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-all duration-200"
+                            x-bind:class="{ 'rotate-180 -translate-y-2': profileOpen }" />
                     </button>
 
                     <!-- Dropdown Menu -->
                     <div x-show="profileOpen" x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="transform opacity-0 scale-95"
-                        x-transition:enter-end="transform opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-75"
-                        x-transition:leave-start="transform opacity-100 scale-100"
-                        x-transition:leave-end="transform opacity-0 scale-95" style="display: none;"
+                        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0" style="display: none;"
                         class="absolute bottom-full left-2 right-2 mb-2 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden z-50">
 
                         <a href="{{ route('profile.edit') }}"

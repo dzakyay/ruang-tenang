@@ -81,7 +81,7 @@
                     </p>
                 </div>
 
-                <a href="{{ route('journal.index') }}" class="relative z-10 block w-full bg-white text-[#5c442b] text-center font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition shadow-sm">
+                <a href="{{ route('journal.create') }}" class="relative z-10 block w-full bg-white text-[#5c442b] text-center font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition shadow-sm">
                     Mulai Menulis
                 </a>
             </div>
