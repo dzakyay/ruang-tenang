@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RuangTenang - Temukan Ketenangan di Kebisingan Hidup</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('Logo.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 

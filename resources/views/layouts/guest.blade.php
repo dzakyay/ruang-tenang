@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'RuangTenang') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('Logo.svg') }}">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -17,7 +18,7 @@
                 <div class="md:w-1/2 relative bg-primary hidden md:block">
                     <img src="{{ asset('images/auth_image.png') }}" alt="RuangTenang" class="absolute inset-0 w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    
+
                     <div class="absolute bottom-8 left-8 right-8 text-white">
                         <div class="flex items-center gap-2 mb-2">
                             <svg class="w-7 h-7 fill-current text-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
