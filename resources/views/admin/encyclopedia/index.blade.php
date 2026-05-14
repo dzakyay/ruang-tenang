@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-6xl mx-auto" x-data="{ showDeleteModal: false, deleteId: null, deleteUrl: '' }">
+<div class="max-w-6xl mx-auto" x-data="{ showDeleteModal: false, deleteId: null, deleteUrl: '' }" @open-delete.window="showDeleteModal = true; deleteId = $event.detail.id; deleteUrl = $event.detail.url; document.getElementById('deleteForm').action = $event.detail.url">
 
     <!-- Header -->
     <div class="flex justify-between items-start mb-8">
@@ -94,7 +94,7 @@
                            class="w-8 h-8 rounded-full bg-white border border-[#e8dbce] flex items-center justify-center text-gray-400 hover:text-blue-500 hover:border-blue-500 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </a>
-                        <button @click="showDeleteModal = true; deleteId = {{ $entry->id }}; deleteUrl = '{{ route('admin.encyclopedia.destroy', $entry) }}'"
+                        <button @click="showDeleteModal = true; deleteUrl = '{{ route('admin.encyclopedia.destroy', $entry) }}'; $nextTick(() => document.getElementById('deleteForm').action = '{{ route('admin.encyclopedia.destroy', $entry) }}')"
                                 class="w-8 h-8 rounded-full bg-white border border-[#e8dbce] flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
@@ -130,7 +130,7 @@
                         class="flex-1 bg-white border border-[#e8dbce] text-[#614d3c] font-medium py-3 rounded-xl hover:bg-gray-50 transition">
                     Batal
                 </button>
-                <form :action="deleteUrl" method="POST" class="flex-1">
+                <form id="deleteForm" method="POST" class="flex-1">
                     @csrf
                     @method('DELETE')
                     <button type="submit"

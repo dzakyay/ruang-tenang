@@ -132,7 +132,7 @@
                             <input type="text" :name="'tips[' + index + '][title]'" x-model="tip.title"
                                    class="w-full bg-transparent border-0 border-b border-[#e8dbce] px-0 py-1 text-sm font-semibold text-[#1c1917] focus:ring-0 focus:border-[#a07954] outline-none transition"
                                    placeholder="Judul Tips">
-                            <input type="text" :name="'tips[' + index + '][body]'" x-model="tip.body"
+                            <input type="text" :name="'tips[' + index + '][description]'" x-model="tip.description"
                                    class="w-full bg-transparent border-0 border-b border-[#e8dbce] px-0 py-1 text-xs text-gray-500 focus:ring-0 focus:border-[#a07954] outline-none transition"
                                    placeholder="Deskripsi tips...">
                         </div>
@@ -200,7 +200,7 @@ function encyclopediaForm() {
     const existingTips = @json($encyclopedia->tips).map(tip => ({
         id: tip.id || Date.now() + Math.random(),
         title: tip.title,
-        body: tip.body || tip.description // using body or description based on schema
+        description: tip.description // using body or description based on schema
     }));
 
     return {
@@ -211,7 +211,7 @@ function encyclopediaForm() {
         openTipModal() { this.newTipTitle = ''; this.newTipBody = ''; this.showTipModal = true; },
         addTipFromModal() {
             if (!this.newTipTitle.trim()) return;
-            this.tips.push({ id: Date.now(), title: this.newTipTitle, body: this.newTipBody });
+            this.tips.push({ id: Date.now(), title: this.newTipTitle, description: this.newTipBody });
             this.showTipModal = false;
         },
         removeTip(id) { this.tips = this.tips.filter(t => t.id !== id); },

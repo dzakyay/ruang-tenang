@@ -15,7 +15,7 @@ class AdminDashboardController extends Controller
         // In real app you'd track page views; here we use encyclopedia entries as proxy
         $topFeelings = Encyclopedia::withCount([])
             ->orderBy('feeling')
-            ->take(5)
+            ->take(120)
             ->get(['id', 'feeling', 'category']);
 
         // Weekly mood trend: average score per day for last 30 days

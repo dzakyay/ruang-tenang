@@ -10,10 +10,13 @@
             <!-- Left Column: User Info -->
             <div class="w-full lg:w-1/3 flex flex-col items-start lg:pt-4">
                 <div class="w-40 h-40 rounded-full border-8 border-white shadow-xl overflow-hidden mb-6 relative bg-gray-100">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=a07954&color=fff&size=256" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover absolute inset-0">
+                    <img src="{{ Auth::user()->profile_picture_url }}"
+                         alt="{{ Auth::user()->name }}"
+                         class="w-full h-full object-cover absolute inset-0">
                 </div>
                 <h2 class="text-2xl font-serif font-bold text-[#1c1917] tracking-tight">{{ Auth::user()->name }}</h2>
                 <p class="text-sm text-gray-500 mt-1.5">Anggota sejak {{ Auth::user()->created_at->translatedFormat('F Y') }}</p>
+
             </div>
 
             <!-- Right Column: Forms -->

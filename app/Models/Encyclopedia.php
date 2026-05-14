@@ -64,4 +64,6 @@ class Encyclopedia extends Model
         return $query->where('feeling', 'like', "%{$term}%")
                      ->orWhere('description', 'like', "%{$term}%");
     }
+
+    
 }

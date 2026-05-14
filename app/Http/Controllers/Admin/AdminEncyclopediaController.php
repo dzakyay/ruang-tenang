@@ -41,19 +41,20 @@ class AdminEncyclopediaController extends Controller
             'banner'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'tips'        => ['nullable', 'array'],
             'tips.*.title'=> ['required_with:tips', 'string', 'max:255'],
-            'tips.*.body' => ['nullable', 'string'],
+            'tips.*.description' => ['nullable', 'string'],
         ]);
 
         if ($request->hasFile('banner')) {
             $validated['banner'] = $request->file('banner')->store('encyclopedia/banners', 'public');
         }
 
-        // Encode tips as JSON
-        if (!empty($validated['tips'])) {
-            $validated['tips'] = json_encode(array_values($validated['tips']));
-        }
+        // 1. Buat Encyclopedia-nya dulu
+        $encyclopedia = Encyclopedia::create($validated);
 
-        Encyclopedia::create($validated);
+        // 2. Insert relasi tips ke tabel EncyclopediaTip
+        if (!empty($validated['tips'])) {
+            $encyclopedia->tips()->createMany($validated['tips']);
+        }
 
         return redirect()->route('admin.encyclopedia.index')
             ->with('success', 'Entri emosi berhasil ditambahkan.');
@@ -61,11 +62,15 @@ class AdminEncyclopediaController extends Controller
 
     public function show(Encyclopedia $encyclopedia)
     {
+        // Wajib me-load relasi tips supaya tampil di halaman show
+        $encyclopedia->load('tips');
         return view('admin.encyclopedia.show', compact('encyclopedia'));
     }
 
     public function edit(Encyclopedia $encyclopedia)
     {
+        // Wajib me-load relasi tips supaya dibaca oleh Alpine.js di halaman edit
+        $encyclopedia->load('tips');
         return view('admin.encyclopedia.edit', compact('encyclopedia'));
     }
 
@@ -80,22 +85,24 @@ class AdminEncyclopediaController extends Controller
             'banner'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'tips'        => ['nullable', 'array'],
             'tips.*.title'=> ['required_with:tips', 'string', 'max:255'],
-            'tips.*.body' => ['nullable', 'string'],
+            'tips.*.description' => ['nullable', 'string'],
         ]);
 
         if ($request->hasFile('banner')) {
-            // Delete old banner if stored locally
             if ($encyclopedia->banner && !str_starts_with($encyclopedia->banner, 'http')) {
                 Storage::disk('public')->delete($encyclopedia->banner);
             }
             $validated['banner'] = $request->file('banner')->store('encyclopedia/banners', 'public');
         }
 
-        if (!empty($validated['tips'])) {
-            $validated['tips'] = json_encode(array_values($validated['tips']));
-        }
-
+        // 1. Update Encyclopedia utama
         $encyclopedia->update($validated);
+
+        // 2. Update tips: Cara paling aman untuk dynamic input adalah hapus yang lama, lalu insert yang baru
+        $encyclopedia->tips()->delete();
+        if (!empty($validated['tips'])) {
+            $encyclopedia->tips()->createMany($validated['tips']);
+        }
 
         return redirect()->route('admin.encyclopedia.index')
             ->with('success', 'Entri emosi berhasil diperbarui.');
@@ -107,6 +114,8 @@ class AdminEncyclopediaController extends Controller
             Storage::disk('public')->delete($encyclopedia->banner);
         }
 
+        // Hapus child/relasinya dulu sebelum menghapus parent
+        $encyclopedia->tips()->delete();
         $encyclopedia->delete();
 
         return redirect()->route('admin.encyclopedia.index')

@@ -25,13 +25,20 @@ class JournalController extends Controller
             $query->where('created_at', '>=', now()->startOfWeek());
         } elseif ($filter === 'this_month') {
             $query->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+                ->whereYear('created_at', now()->year);
         }
 
         $journals    = $query->paginate(9)->withQueryString();
         $dailyPrompt = $this->getDailyPrompt();
 
-        return view('journal.index', compact('journals', 'search', 'dailyPrompt'));
+        // Semua tanggal jurnal user (untuk kalender navigasi)
+        $allJournalDays = $user->journals()
+            ->pluck('created_at')
+            ->map(fn($d) => $d->format('Y-m-d'))
+            ->unique()
+            ->values();
+
+        return view('journal.index', compact('journals', 'search', 'dailyPrompt', 'allJournalDays'));
     }
 
     /**
