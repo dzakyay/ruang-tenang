@@ -17,22 +17,18 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center gap-2">
-                    <svg class="w-8 h-8 fill-current text-primary" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M17.5 2.5C17.5 2.5 13.5 2.5 9.5 6.5C5.5 10.5 4.5 15.5 4.5 15.5C4.5 15.5 6.5 14.5 9.5 14.5C12.5 14.5 15.5 16.5 15.5 16.5C15.5 16.5 15.5 11.5 19.5 7.5C21.5 5.5 21.5 2.5 21.5 2.5C21.5 2.5 18.5 2.5 17.5 2.5Z" />
-                        <path
-                            d="M9.5 14.5C6.5 14.5 4.5 15.5 4.5 15.5C4.5 15.5 5.5 18.5 7.5 20.5C9.5 22.5 12.5 22.5 12.5 22.5C12.5 22.5 12.5 18.5 9.5 14.5Z" />
-                    </svg>
-                    <span class="font-serif text-2xl font-bold text-gray-900 italic">RuangTenang</span>
+                    <x-icons.logo class="w-152 h-45" />
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8 items-center">
-                    <a href="#tentang"
-                        class="text-sm font-medium text-gray-600 hover:text-primary border-b-2 border-primary pb-1">Tentang
+                <div x-data="{ active: '' }" class="hidden md:flex space-x-8 items-center">
+                    <a href="#tentang" @click="active = 'tentang'"
+                        :class="active === 'tentang' ? 'text-primary border-primary' : 'text-gray-600 border-transparent hover:text-primary'"
+                        class="text-sm font-medium border-b-2 pb-1 transition-colors">Tentang
                         Kami</a>
-                    <a href="#fitur" class="text-sm font-medium text-gray-600 hover:text-primary">Fitur</a>
+                    <a href="#fitur" @click="active = 'fitur'"
+                        :class="active === 'fitur' ? 'text-primary border-primary' : 'text-gray-600 border-transparent hover:text-primary'"
+                        class="text-sm font-medium border-b-2 pb-1 transition-colors">Fitur</a>
                 </div>
 
                 <!-- Right Menu / CTA -->
@@ -191,41 +187,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <!-- Brand -->
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <svg class="w-6 h-6 fill-current text-primary" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M17.5 2.5C17.5 2.5 13.5 2.5 9.5 6.5C5.5 10.5 4.5 15.5 4.5 15.5C4.5 15.5 6.5 14.5 9.5 14.5C12.5 14.5 15.5 16.5 15.5 16.5C15.5 16.5 15.5 11.5 19.5 7.5C21.5 5.5 21.5 2.5 21.5 2.5C21.5 2.5 18.5 2.5 17.5 2.5Z" />
-                            <path
-                                d="M9.5 14.5C6.5 14.5 4.5 15.5 4.5 15.5C4.5 15.5 5.5 18.5 7.5 20.5C9.5 22.5 12.5 22.5 12.5 22.5C12.5 22.5 12.5 18.5 9.5 14.5Z" />
-                        </svg>
-                        <span class="font-serif text-xl font-bold text-gray-900 italic">RuangTenang</span>
+                <div class="col-span-1 md:col-span-4 flex flex-col items-center text-center">
+                    <div class="flex justify-center items-center gap-2 mb-4">
+                        <x-icons.logo class="w-152 h-45" />
                     </div>
                     <p class="text-gray-500 text-sm max-w-sm leading-relaxed">
                         Misi kami adalah mendemokratisasi akses ke kesehatan mental yang berkualitas dan penuh kasih.
                     </p>
-                </div>
-
-                <!-- Links -->
-                <div>
-                    <h4 class="font-bold text-gray-900 text-xs tracking-wider uppercase mb-4">Perusahaan</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-sm text-gray-500 hover:text-primary transition">Tentang
-                                Kami</a></li>
-                        <li><a href="#" class="text-sm text-gray-500 hover:text-primary transition">Kebijakan
-                                Privasi</a></li>
-                        <li><a href="#" class="text-sm text-gray-500 hover:text-primary transition">Syarat &
-                                Ketentuan</a></li>
-                    </ul>
-                </div>
-
-                <!-- Contact -->
-                <div>
-                    <h4 class="font-bold text-gray-900 text-xs tracking-wider uppercase mb-4">Hubungi Kami</h4>
-                    <p class="text-sm text-gray-500 mb-2">Butuh bantuan? Tim kami siap mendengarkan.</p>
-                    <a href="mailto:halo@ruangtenang.com"
-                        class="text-sm font-medium text-primary hover:text-primary-dark transition">halo@ruangtenang.com</a>
                 </div>
             </div>
 

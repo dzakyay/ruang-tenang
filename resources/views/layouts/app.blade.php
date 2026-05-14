@@ -39,8 +39,7 @@
                 <!-- Logo Sidebar -->
                 <div class="h-24 flex items-center px-8">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                        <x-icons.logo class="w-7 h-7 fill-current text-primary" />
-                        <span class="font-serif text-xl font-medium text-primary">RuangTenang</span>
+                        <x-icons.logo class="w-152 h-45" />
                     </a>
                 </div>
 
@@ -165,8 +164,7 @@
                 </button>
 
                 <div class="flex items-center gap-2">
-                    <x-icons.logo class="w-6 h-6 fill-current text-primary" />
-                    <span class="font-serif text-lg font-medium text-primary">RuangTenang</span>
+                    <x-icons.logo class="w-152 h-45" />
                 </div>
 
             </div>

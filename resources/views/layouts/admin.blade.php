@@ -39,7 +39,7 @@
 
         <!-- Logo Area -->
         <div class="px-8 pt-10 pb-8">
-            <h1 class="text-2xl font-serif font-bold text-[#a07954]">RuangTenang</h1>
+            <x-icons.logo class="w-152 h-45" />
             <p class="text-sm text-gray-500 mt-1">Panel Administrasi</p>
         </div>
 
