@@ -17,22 +17,43 @@
         <!-- Profile Picture -->
         <div x-data="{
             preview: '{{ $user->profile_picture_url }}',
+            toastMessage: '',
+            showToast: false,
+            showError(msg) {
+                this.toastMessage = msg;
+                this.showToast = true;
+                setTimeout(() => this.showToast = false, 3000);
+            },
             handleFile(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 if (!['image/jpeg','image/jpg','image/png','image/webp'].includes(file.type)) {
-                    alert('Format file harus JPG, JPEG, PNG, atau WEBP.');
+                    this.showError('Format file harus JPG, JPEG, PNG, atau WEBP.');
                     e.target.value = '';
                     return;
                 }
                 if (file.size > 2 * 1024 * 1024) {
-                    alert('Ukuran file maksimal 2MB.');
+                    this.showError('Ukuran file maksimal 2MB.');
                     e.target.value = '';
                     return;
                 }
                 this.preview = URL.createObjectURL(file);
             }
         }">
+            <!-- Toast Notification -->
+            <div x-show="showToast" x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-2"
+                 class="fixed top-6 right-6 z-[100] flex items-center gap-3 bg-white border border-red-100 text-red-700 text-sm font-medium px-5 py-3 rounded-2xl shadow-lg">
+                <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span x-text="toastMessage"></span>
+            </div>
             <label class="block text-sm font-semibold text-gray-700 mb-3">Foto Profil</label>
             <div class="flex items-center gap-6">
                 <!-- Preview -->

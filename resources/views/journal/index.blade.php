@@ -8,6 +8,7 @@
                 showAddModal: {{ session('showAddModal', false) ? 'true' : 'false' }},
                 bannerPreview: null,
                 bannerName: null,
+                bannerError: null,
 
                 calYear: {{ now()->year }},
                 calMonth: {{ now()->month }},
@@ -47,8 +48,21 @@
                     else this.calMonth++;
                 },
                 handleBanner(event) {
+                    this.bannerError = null;
                     const file = event.target.files[0];
                     if (!file) return;
+                    
+                    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+                        this.bannerError = 'Format file tidak didukung. Harap gunakan JPG, PNG, atau WEBP.';
+                        event.target.value = '';
+                        return;
+                    }
+                    if (file.size > 3 * 1024 * 1024) {
+                        this.bannerError = 'Ukuran file maksimal 3 MB.';
+                        event.target.value = '';
+                        return;
+                    }
+
                     this.bannerName = file.name;
                     const reader = new FileReader();
                     reader.onload = (e) => { this.bannerPreview = e.target.result; };
@@ -291,7 +305,8 @@
                                 <span class="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition drop-shadow-md">Ubah gambar</span>
                             </div>
                         </div>
-                        <p x-show="bannerName" class="text-xs text-[#86654b] mt-2 pl-1 truncate" x-text="'📎 ' + bannerName"></p>
+                        <p x-show="bannerError" class="text-xs text-red-500 mt-2 pl-1 font-medium" x-text="bannerError"></p>
+                        <p x-show="bannerName && !bannerError" class="text-xs text-[#86654b] mt-2 pl-1 truncate" x-text="'📎 ' + bannerName"></p>
                     </div>
 
                     <div class="mb-4">

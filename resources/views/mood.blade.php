@@ -28,25 +28,27 @@
         </div>
 
         {{-- Header --}}
-        <div class="mb-10 flex items-start justify-between gap-4">
+        <div class="mb-10 flex flex-col-reverse md:flex-row md:items-start justify-between gap-6">
             <div>
                 <p class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Analisis Jurnal</p>
                 <h1 class="text-4xl font-serif font-bold text-[#614d3c] mb-2 italic">Mengenal Dirimu Lebih Dalam</h1>
                 <p class="text-gray-500 max-w-2xl">Luangkan waktu sejenak untuk melihat bagaimana perasaanmu berkembang selama bulan ini.</p>
             </div>
-            @if(!$todayEmotion)
-                <button @click="showMoodModal = true"
-                        class="flex-shrink-0 flex items-center gap-2 bg-[#5c442b] text-white text-sm font-medium px-5 py-3 rounded-2xl hover:bg-[#4a3622] transition shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Catat Mood Hari Ini
-                </button>
-            @else
-                <div class="flex-shrink-0 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-sm border border-[#e8dbce]/50 text-sm text-[#614d3c]">
-                    <span class="text-xl">{{ $todayEmotion->mood_emoji }}</span>
-                    <span class="font-medium">{{ $todayEmotion->mood_label }}</span>
-                    <span class="text-gray-400">sudah dicatat</span>
-                </div>
-            @endif
+            <div class="w-full md:w-auto">
+                @if(!$todayEmotion)
+                    <button @click="showMoodModal = true"
+                            class="flex-shrink-0 inline-flex items-center justify-center gap-2 bg-[#5c442b] text-white text-sm font-medium px-5 py-3 rounded-2xl hover:bg-[#4a3622] transition shadow-sm w-full md:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Catat Mood Hari Ini
+                    </button>
+                @else
+                    <div class="flex-shrink-0 inline-flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-3 md:py-2.5 shadow-sm border border-[#e8dbce]/50 text-sm text-[#614d3c] w-full md:w-auto">
+                        <span class="text-xl">{{ $todayEmotion->mood_emoji }}</span>
+                        <span class="font-medium">{{ $todayEmotion->mood_label }}</span>
+                        <span class="text-gray-400">sudah dicatat</span>
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- Top Grid --}}

@@ -25,9 +25,23 @@
         <form action="{{ route('journal.update', $journal) }}" method="POST" enctype="multipart/form-data" x-data="{
             bannerPreview: '{{ $journal->banner_url }}',
             bannerName: null,
+            bannerError: null,
             handleBanner(e) {
+                this.bannerError = null;
                 const f = e.target.files[0];
                 if (!f) return;
+
+                if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(f.type)) {
+                    this.bannerError = 'Format file tidak didukung. Harap gunakan JPG, PNG, atau WEBP.';
+                    e.target.value = '';
+                    return;
+                }
+                if (f.size > 3 * 1024 * 1024) {
+                    this.bannerError = 'Ukuran file maksimal 3 MB.';
+                    e.target.value = '';
+                    return;
+                }
+
                 this.bannerName = f.name;
                 const r = new FileReader();
                 r.onload = ev => { this.bannerPreview = ev.target.result; };
@@ -63,6 +77,11 @@
                 </div>
                 <input type="file" name="banner" x-ref="bannerInput" accept="image/jpeg,image/png,image/webp"
                     class="hidden" @change="handleBanner($event)">
+                
+                <div class="px-8 md:px-12 pt-4" x-show="bannerError || bannerName" x-cloak>
+                    <p x-show="bannerError" class="text-xs text-red-500 font-medium" x-text="bannerError"></p>
+                    <p x-show="bannerName && !bannerError" class="text-xs text-[#86654b] truncate" x-text="'📎 ' + bannerName"></p>
+                </div>
 
                 <div class="p-8 md:p-12">
 

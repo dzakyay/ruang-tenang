@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('Logo.svg') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -118,7 +119,7 @@
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=a07954&color=fff"
                                 alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
                         </div>
-                        <div class="ml-3 flex-1 text-left">
+                        <div class="ml-3 flex-1 text-left min-w-0">
                             <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
                         </div>
                         <x-icons.chevron-down class="h-4 w-4 text-gray-400 transform transition-all duration-200"

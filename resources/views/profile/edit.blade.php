@@ -14,7 +14,7 @@
                          alt="{{ Auth::user()->name }}"
                          class="w-full h-full object-cover absolute inset-0">
                 </div>
-                <h2 class="text-2xl font-serif font-bold text-[#1c1917] tracking-tight">{{ Auth::user()->name }}</h2>
+                <h2 class="text-2xl font-serif font-bold text-[#1c1917] tracking-tight break-words w-full">{{ Auth::user()->name }}</h2>
                 <p class="text-sm text-gray-500 mt-1.5">Anggota sejak {{ Auth::user()->created_at->translatedFormat('F Y') }}</p>
 
             </div>
