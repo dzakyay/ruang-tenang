@@ -31,12 +31,14 @@ class JournalController extends Controller
         $journals    = $query->paginate(9)->withQueryString();
         $dailyPrompt = $this->getDailyPrompt();
 
-        // Semua tanggal jurnal user (untuk kalender navigasi)
+        // Fix: gunakan relasi $user->journals() bukan Journal::where(...)
+        // supaya sudah pasti scope ke user yang login, dan ambil created_at dengan benar
         $allJournalDays = $user->journals()
             ->pluck('created_at')
-            ->map(fn($d) => $d->format('Y-m-d'))
+            ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))
             ->unique()
-            ->values();
+            ->values()
+            ->toArray();
 
         return view('journal.index', compact('journals', 'search', 'dailyPrompt', 'allJournalDays'));
     }
@@ -154,7 +156,7 @@ class JournalController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // Max 5MB
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         if ($request->hasFile('image')) {

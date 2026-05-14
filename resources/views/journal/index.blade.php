@@ -1,55 +1,68 @@
 <x-app-layout>
+    {{-- Alpine data dipisah ke script block supaya @json tidak merusak atribut HTML --}}
+    <script>
+        window.__journalDays = @json($allJournalDays ?? []);
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('journalPage', () => ({
+                showAddModal: {{ session('showAddModal', false) ? 'true' : 'false' }},
+                bannerPreview: null,
+                bannerName: null,
+
+                calYear: {{ now()->year }},
+                calMonth: {{ now()->month }},
+                calToday: {{ now()->day }},
+                calTodayYear: {{ now()->year }},
+                calTodayMonth: {{ now()->month }},
+                journalDays: window.__journalDays,
+
+                get calMonthLabel() {
+                    const names = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                    return names[this.calMonth - 1] + ' ' + this.calYear;
+                },
+                get daysInMonth() {
+                    return new Date(this.calYear, this.calMonth, 0).getDate();
+                },
+                get startOffset() {
+                    const dow = new Date(this.calYear, this.calMonth - 1, 1).getDay();
+                    return (dow + 6) % 7;
+                },
+                hasJournal(day) {
+                    const key = this.calYear + '-'
+                        + String(this.calMonth).padStart(2, '0') + '-'
+                        + String(day).padStart(2, '0');
+                    return this.journalDays.includes(key);
+                },
+                isToday(day) {
+                    return day === this.calToday
+                        && this.calMonth === this.calTodayMonth
+                        && this.calYear === this.calTodayYear;
+                },
+                prevMonth() {
+                    if (this.calMonth === 1) { this.calMonth = 12; this.calYear--; }
+                    else this.calMonth--;
+                },
+                nextMonth() {
+                    if (this.calMonth === 12) { this.calMonth = 1; this.calYear++; }
+                    else this.calMonth++;
+                },
+                handleBanner(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.bannerName = file.name;
+                    const reader = new FileReader();
+                    reader.onload = (e) => { this.bannerPreview = e.target.result; };
+                    reader.readAsDataURL(file);
+                },
+                triggerBanner() {
+                    this.$refs.bannerInput.click();
+                },
+            }));
+        });
+    </script>
+
     <div
-        x-data="{
-            showAddModal: {{ session('showAddModal', false) ? 'true' : 'false' }},
-            bannerPreview: null,
-            bannerName: null,
-            handleBanner(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                this.bannerName = file.name;
-                const reader = new FileReader();
-                reader.onload = (e) => { this.bannerPreview = e.target.result; };
-                reader.readAsDataURL(file);
-            },
-            triggerBanner() { this.$refs.bannerInput.click(); },
-
-            {{-- Calendar state --}}
-            calYear: {{ now()->year }},
-            calMonth: {{ now()->month }},
-            calToday: {{ now()->day }},
-            calTodayYear: {{ now()->year }},
-            calTodayMonth: {{ now()->month }},
-            journalDays: @json($allJournalDays ?? []),
-
-            get calMonthLabel() {
-                const names = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-                return names[this.calMonth - 1] + ' ' + this.calYear;
-            },
-            get daysInMonth() {
-                return new Date(this.calYear, this.calMonth, 0).getDate();
-            },
-            get startOffset() {
-                {{-- 0=Sun→6, 1=Mon→0, ... --}}
-                const dow = new Date(this.calYear, this.calMonth - 1, 1).getDay();
-                return (dow + 6) % 7;
-            },
-            hasJournal(day) {
-                const key = this.calYear + '-' + String(this.calMonth).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-                return this.journalDays.includes(key);
-            },
-            isToday(day) {
-                return day === this.calToday && this.calMonth === this.calTodayMonth && this.calYear === this.calTodayYear;
-            },
-            prevMonth() {
-                if (this.calMonth === 1) { this.calMonth = 12; this.calYear--; }
-                else this.calMonth--;
-            },
-            nextMonth() {
-                if (this.calMonth === 12) { this.calMonth = 1; this.calYear++; }
-                else this.calMonth++;
-            },
-        }"
+        x-data="journalPage"
         class="px-6 md:px-10 py-12 max-w-7xl mx-auto min-h-full flex flex-col relative"
     >
 
@@ -177,7 +190,6 @@
 
                 {{-- Day cells --}}
                 <div class="grid grid-cols-7 gap-y-4 text-center">
-                    {{-- offset blank cells --}}
                     <template x-for="i in startOffset">
                         <div></div>
                     </template>
@@ -243,25 +255,19 @@
 
         {{-- ════════════════════ ADD JOURNAL MODAL ════════════════════ --}}
         <div x-show="showAddModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div x-show="showAddModal"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
+            {{-- Backdrop --}}
+            <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="showAddModal = false"></div>
 
-            <div x-show="showAddModal"
-                 @click.away="showAddModal = false"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl z-10 border border-gray-100">
-
+            <div
+                x-show="showAddModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl z-10 border border-gray-100"
+            >
                 <h2 class="text-3xl font-serif text-[#1c1917] text-center mb-8 font-bold">Tambah Jurnal Baru</h2>
 
                 <form action="{{ route('journal.store') }}" method="POST" enctype="multipart/form-data">
