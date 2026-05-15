@@ -24,6 +24,20 @@ class AdminAuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Email yang Anda masukkan tidak terdaftar.',
+            ])->onlyInput('email');
+        }
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'password' => 'Password yang Anda masukkan salah.',
+            ])->onlyInput('email');
+        }
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             if (Auth::user()->role !== 'admin') {
                 Auth::logout();
@@ -37,7 +51,7 @@ class AdminAuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau kata sandi salah.',
+            'email' => 'Terjadi kesalahan saat mencoba masuk.',
         ])->onlyInput('email');
     }
 

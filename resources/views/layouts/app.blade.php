@@ -76,7 +76,7 @@
                             </a>
                             @if ($hasJournals)
                                 <button @click="journalOpen = !journalOpen"
-                                    class="ml-2 p-1 focus:outline-none hover:text-primary transition-colors">
+                                    class="ml-1 p-1 focus:outline-none hover:text-primary transition-colors flex-shrink-0">
                                     <x-icons.chevron-down class="h-4 w-4 transform transition-all"
                                         x-bind:class="{ 'rotate-180 -translate-y-2': journalOpen }" />
                                 </button>

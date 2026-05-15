@@ -42,7 +42,7 @@
                         Catat Mood Hari Ini
                     </button>
                 @else
-                    <div class="flex-shrink-0 inline-flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-3 md:py-2.5 shadow-sm border border-[#e8dbce]/50 text-sm text-[#614d3c] w-full md:w-auto">
+                    <div class="flex-shrink-0 inline-flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-3 md:py-2.5 shadow-sm border border-[#e8dbce]/50 text-xs sm:text-sm text-[#614d3c] w-full md:w-auto whitespace-nowrap">
                         <span class="text-xl">{{ $todayEmotion->mood_emoji }}</span>
                         <span class="font-medium">{{ $todayEmotion->mood_label }}</span>
                         <span class="text-gray-400">sudah dicatat</span>
