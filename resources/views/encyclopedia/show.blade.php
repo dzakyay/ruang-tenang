@@ -17,14 +17,10 @@
         </div>
         @endif
 
-        <div class="w-full h-80 md:h-[400px] rounded-[2rem] overflow-hidden shadow-lg mb-12 bg-gray-100">
-            @if($encyclopedia->banner_url)
-                <img src="{{ $encyclopedia->banner_url }}"
-                     alt="{{ $encyclopedia->feeling }}"
-                     class="w-full h-full object-cover">
-            @else
-                <div class="w-full h-full bg-gradient-to-br from-[#f4ebe1] to-[#e8dbce]"></div>
-            @endif
+        <div class="w-full h-80 md:h-[400px] rounded-[2rem] overflow-hidden shadow-lg mb-12">
+            <img src="{{ $encyclopedia->banner_url ?? 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1600&q=80' }}"
+                 alt="{{ $encyclopedia->feeling }}"
+                 class="w-full h-full object-cover">
         </div>
 
         <div class="prose prose-lg prose-stone max-w-none mb-16 text-gray-600 leading-relaxed">

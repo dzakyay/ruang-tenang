@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Encyclopedia extends Model
@@ -36,7 +37,7 @@ class Encyclopedia extends Model
             return $this->banner;
         }
 
-        return asset('storage/' . $this->banner);
+        return Storage::disk('public')->url($this->banner);
     }
 
     public function getSlugAttribute(): string
