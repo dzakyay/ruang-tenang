@@ -28,7 +28,7 @@
         </div>
 
         <div>
-            <h2 class="text-3xl font-serif font-bold text-[#a07954] mb-8">Langkah Kecil untuk Tenang</h2>
+            <h2 class="text-3xl font-serif font-bold text-[#a07954] mb-8">Tips</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach($encyclopedia->tips as $tip)
